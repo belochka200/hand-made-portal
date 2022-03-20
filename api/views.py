@@ -1,3 +1,4 @@
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -7,7 +8,7 @@ from user.models import Profile
 
 from .serializers import ProductSerializer
 from .serializers import ProfileSerializer
-
+from .serializers import AddProduct
 
 class getAllProducts(APIView):
     def get(self, request):
@@ -45,3 +46,18 @@ class getProduct(APIView):
             instance=product,
         )
         return Response(serializer_for_queryset.data)
+
+
+class addProduct(APIView):
+    serializer_class = AddProduct
+    model = Product
+    # data = {
+    #     'title': "Test title",
+    #     'price': 999,
+    #     'describe': "TOP TOP TOP"
+    # }
+    def post(self, request):
+        serializer_for_writing = self.serializer_class(data=request.data)
+        serializer_for_writing.is_valid(raise_exception=True)
+        serializer_for_writing.save()
+        return Response(data=serializer_for_writing.data, status=status.HTTP_201_CREATED)
